@@ -1,0 +1,44 @@
+I was able to perform some troubleshooting and believe this issue is resolved for the time being. The bcompare commands run successfully and produce the proper output files with the syswmadm user. The fix involve removing some cached files for the faked GUI session that is created in /home/syswmadm/.config, /home/syswmadm/.cache, /home/syswmadm/.dbus  
+
+That being said, my original concerns regarding official support from the vendor stand. Per Scooter Software the only platform that supports non-GUI commandline runs of bcompare is Windows. All other platforms (Linux and macOS) require a GUI to be present. 
+
+See: https://www.scootersoftware.com/vbulletin/forum/beyond-compare-4-discussion/linux-aa/82113-beyond-compare-merge-with-only-console-where-no-gui-exists
+
+Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+. ~/.bashrc
+fi
+
+User specific environment and startup programs
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+
+export PATH
+
+#umask 077
+
+PID=pgrep -n -u $USER gnome-session
+if [ -n "$PID" ]; then
+export DISPLAY=awk 'BEGIN{FS="="; RS="\0"}  $1=="DISPLAY" {print $2; exit}' /proc/$PID/environ
+echo "DISPLAY set to $DISPLAY"
+else
+echo "Could not set DISPLAY" > /dev/null 2>&1
+rm /tmp/.X* > /dev/null 2>&1
+startx > /dev/null 2>&1 &
+export DISPLAY=:0
+fi
+unset PID
+~
+
+bcompare -silent @"sc.txt" "/var/local/ei/tdTestBankRepo/tdTestBank/Outbound/DELVRY03/Amazon/9570^20200505^2_Expected.txt" "/var/local/ei/tdTestBankRepo/tdTestBank/Outbound/DELVRY03/Amazon/9570^20200505^2_Observed_DEV.txt" "/var/local/ei/tdTestBankRepo/tdTestBank/Outbound/DELVRY03/Amazon/9570^20200505^2_ComparisionReport_DEV.html"
+
+Or
+
+bcompare -silent @"sc.txt" "/tmp/a.txt" "/tmp/b.txt" "tmp/c1.html"
+
+sc.txt
+
+text-report layout:side-by-side &
+output-to:"%3" output-options:html-color "%1" "%2"
+~
+~
+
